@@ -15,6 +15,7 @@
         self.saveCustomer = saveCustomer;
         self.createCustomer = createCustomer;
         self.filter = filterCustomer;
+        self.cancelEdit = cancelEdit;
         
         // Load initial data
         getAllCustomers();
@@ -38,14 +39,15 @@
             
             
             $mdDialog.show(confirm).then(function () {
-                customerService.destroy(self.selected.customer_id).then(function (affectedRows) {
+                customerService.destroy(self.selected._id).then(function (affectedRows) {
                     self.customers.splice(self.selectedIndex, 1);
+                    createCustomer();
                 });
             }, function () { });
         }
         
         function saveCustomer($event) {
-            if (self.selected != null && self.selected.customer_id != null) {
+            if (self.selected != null && self.selected._id != null) {
                 customerService.update(self.selected).then(function (affectedRows) {
                     $mdDialog.show(
                         $mdDialog
@@ -59,7 +61,7 @@
                 });
             }
             else {
-                //self.selected.customer_id = new Date().getSeconds();
+                //self.selected._id = new Date().getSeconds();
                 customerService.create(self.selected).then(function (affectedRows) {
                     $mdDialog.show(
                         $mdDialog
@@ -70,6 +72,8 @@
                             .ok('Ok')
                             .targetEvent($event)
                     );
+                    
+                    filterCustomer();
                 });
             }
         }
@@ -96,6 +100,10 @@
                     self.selected = customers[0];
                 });
             }
+        }
+        
+        function cancelEdit() {
+            getAllCustomers();
         }
     }
 

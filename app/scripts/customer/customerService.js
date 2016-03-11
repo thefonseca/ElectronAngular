@@ -1,14 +1,8 @@
 (function () {
     'use strict';
-    var mysql = require('mysql');
-    
-    // Creates MySql database connection
-    var connection = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "password",
-        database: "customer_manager"
-    });
+    // Type 3: Persistent datastore with automatic loading
+    var Datastore = require('nedb')
+        , db = new Datastore({ filename: 'app/database', autoload: true });
     
     angular.module('app')
         .service('customerService', ['$q', CustomerService]);
@@ -25,66 +19,74 @@
         
         function getCustomers() {
             var deferred = $q.defer();
-            var query = "SELECT * FROM customers";
-            connection.query(query, function (err, rows) {
+            
+            db.find({}).sort({ name: 1 }).exec(function (err, docs) {
                 if (err) deferred.reject(err);
-                deferred.resolve(rows);
+                deferred.resolve(docs);
             });
             return deferred.promise;
         }
         
         function getCustomerById(id) {
             var deferred = $q.defer();
-            var query = "SELECT * FROM customers WHERE customer_id = ?";
-            connection.query(query, [id], function (err, rows) {
+            
+            db.findOne({ _id: id }, function (err, doc) {
                 if (err) deferred.reject(err);
-                deferred.resolve(rows);
+                deferred.resolve(doc);
             });
+            
             return deferred.promise;
         }
         
         function getCustomerByName(name) {
             var deferred = $q.defer();
-            var query = "SELECT * FROM customers WHERE name LIKE  '" + name + "%'";
-            connection.query(query, [name], function (err, rows) {
-                console.log(err)
+            
+            db.find({"name": name}, function (err, docs) {
                 if (err) deferred.reject(err);
-                
-                deferred.resolve(rows);
+                deferred.resolve(docs);
             });
             return deferred.promise;
         }
         
         function createCustomer(customer) {
             var deferred = $q.defer();
-            var query = "INSERT INTO customers SET ?";
-            connection.query(query, customer, function (err, res) {
+            
+            db.insert(customer, function (err, newDoc) {   // Callback is optional
                 console.log(err)
                 if (err) deferred.reject(err);
-                console.log(res)
-                deferred.resolve(res.insertId);
+                console.log(newDoc)
+                deferred.resolve(newDoc._id);
             });
+            
             return deferred.promise;
         }
         
         function deleteCustomer(id) {
             var deferred = $q.defer();
-            var query = "DELETE FROM customers WHERE customer_id = ?";
-            connection.query(query, [id], function (err, res) {
+            
+            db.remove({ _id: id }, {}, function (err, numRemoved) {
                 if (err) deferred.reject(err);
-                console.log(res);
-                deferred.resolve(res.affectedRows);
+                console.log(numRemoved);
+                deferred.resolve(numRemoved);
             });
             return deferred.promise;
         }
         
         function updateCustomer(customer) {
             var deferred = $q.defer();
-            var query = "UPDATE customers SET name = ? WHERE customer_id = ?";
-            connection.query(query, [customer.name, customer.customer_id], function (err, res) {
+            var newObj = { 
+                name: customer.name, 
+                email: customer.email,
+                address: customer.address,
+                city: customer.city,
+                phone: customer.phone
+            };
+            
+            db.update({ _id: customer._id }, newObj, {}, function (err, numReplaced) {
+                console.log(err);
                 if (err) deferred.reject(err);
-                deferred.resolve(res);
-            });
+                deferred.resolve(numReplaced);
+            });            
             return deferred.promise;
         }
     }

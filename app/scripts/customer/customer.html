@@ -25,7 +25,7 @@
             <md-button class="menu" hide-gt-sm ng-click="ul.toggleList()" aria-label="Show User List">
                 <md-icon md-svg-icon="menu"></md-icon>
             </md-button>
-            <h1>{{ _ctrl.selected.name }}</h1>
+            <h1>{{ _ctrl.selected.name ? _ctrl.selected.name : "\u00A0\u00A0" }}</h1>
         </md-toolbar>
 
         <md-content flex id="content">
@@ -34,15 +34,15 @@
                 <md-content layout-padding class="autoScroll">
                     <md-input-container>
                         <label>Name</label>
-                        <input ng-model="_ctrl.selected.name" type="text">
+                        <input ng-model="_ctrl.selected.name" type="text" ng-required="true" ng-minlength="3">
                     </md-input-container>
                     <md-input-container md-no-float>
                         <label>Email</label>
-                        <input ng-model="_ctrl.selected.email" type="text">
+                        <input ng-model="_ctrl.selected.email" type="text" ng-required="true" ng-minlength="3">
                     </md-input-container>
                     <md-input-container>
                         <label>Address</label>
-                        <input ng-model="_ctrl.selected.address"  ng-required="true">
+                        <input ng-model="_ctrl.selected.address" type="text">
                     </md-input-container>
                     <md-input-container md-no-float>
                         <label>City</label>
@@ -56,8 +56,8 @@
                 <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
                     <md-button class="md-raised md-info" ng-click="_ctrl.createCustomer()">Add</md-button>
                     <md-button class="md-raised md-primary" ng-click="_ctrl.saveCustomer()">Save</md-button>
-                    <md-button class="md-raised md-danger" ng-click="_ctrl.cancelEdit()">Cancel</md-button>
-                    <md-button class="md-raised md-warn" ng-click="_ctrl.deleteCustomer()">Delete</md-button>
+                    <md-button class="md-raised md-danger" ng-click="_ctrl.cancelEdit()" >Cancel</md-button>
+                    <md-button class="md-raised md-warn" ng-click="_ctrl.deleteCustomer()" ng-show="_ctrl.selected._id">Delete</md-button>
                 </section>
             </div>
         </md-content>

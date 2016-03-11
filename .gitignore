@@ -1,0 +1,6 @@
+dist
+build
+app/node_modules
+app/database
+bower_components
+node_modules
